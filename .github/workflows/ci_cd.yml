@@ -44,17 +44,25 @@ jobs:
       run: |
         mkdir -p $HOME/.kube
 
-    - name: Replace Hostname in Kubeconfig
-      run: |
-        echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
-        sed -i 's/kubernetes.docker.internal/172.17.0.1/g' $HOME/.kube/config
-
-    - name: Deploy to Kubernetes
+    - name: Decode Kubeconfig
       env:
         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
       run: |
+        echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
+
+    - name: Optional - Replace Hostname in Kubeconfig
+      run: |
+        if grep -q 'kubernetes.docker.internal' $HOME/.kube/config; then
+          sed -i 's/kubernetes.docker.internal/172.17.0.1/g' $HOME/.kube/config
+        fi
+
+    - name: Set Kubernetes Context
+      run: |
         kubectl config get-contexts
-        kubectl config current-context
+        kubectl config use-context docker-desktop
+
+    - name: Deploy to Kubernetes
+      run: |
         kubectl apply -f deployment.yaml --validate=false
         kubectl apply -f service.yaml --validate=false
         kubectl apply -f issuer.yaml --validate=false

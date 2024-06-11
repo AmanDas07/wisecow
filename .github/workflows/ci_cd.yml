@@ -24,8 +24,8 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        docker build -t 90amandas388/wisecow:latest .
-        docker push 90amandas388/wisecow:latest
+        docker build -t 90amandas3880/wisecow:latest .
+        docker push 90amandas3880/wisecow:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -58,6 +58,7 @@ jobs:
 
     - name: Set Kubernetes Context
       run: |
+        export KUBECONFIG=$HOME/.kube/config
         kubectl config get-contexts
         kubectl config use-context docker-desktop
 
@@ -67,3 +68,13 @@ jobs:
         kubectl apply -f service.yaml --validate=false
         kubectl apply -f issuer.yaml --validate=false
         kubectl apply -f ingress.yaml --validate=false
+
+    - name: Print Kubeconfig File
+      run: |
+        cat $HOME/.kube/config
+
+    - name: Debug Kubernetes Access
+      run: |
+        export KUBECONFIG=$HOME/.kube/config
+        kubectl cluster-info
+        kubectl get nodes

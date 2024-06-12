@@ -56,6 +56,10 @@ jobs:
           sed -i 's/kubernetes.docker.internal/172.17.0.1/g' $HOME/.kube/config
         fi
 
+    - name: Print Kubeconfig File
+      run: |
+        cat $HOME/.kube/config
+
     - name: Set Kubernetes Context
       run: |
         export KUBECONFIG=$HOME/.kube/config
@@ -68,10 +72,6 @@ jobs:
         kubectl apply -f service.yaml --validate=false
         kubectl apply -f issuer.yaml --validate=false
         kubectl apply -f ingress.yaml --validate=false
-
-    - name: Print Kubeconfig File
-      run: |
-        cat $HOME/.kube/config
 
     - name: Debug Kubernetes Access
       run: |
